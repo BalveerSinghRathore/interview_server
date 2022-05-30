@@ -11,6 +11,7 @@ import Skill from "../../models/skill";
  * @param limit
  * @param page
  * @param search
+ * @param order
  *
  * @returns status
  * @returns message
@@ -25,9 +26,11 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
     let pages: object = {};
     let count: number = 0;
 
-    let setSearch: number = 0;
+    let setSearch: string = "";
+    let setOrder: string = "c_d";
     let setPage: number = 0;
     let setLimit: number = 10;
+    let setSort: any = { createdAt: -1 };
 
     try {
         if (req.query && req.query.limit) {
@@ -36,8 +39,22 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
         if (req.query && req.query.page) {
             setPage = (req.query as any).page;
         }
-        if (req.query && req.query.search) {
-            setSearch = (req.query as any).search;
+        if (req.query && req.query.keyword) {
+            setSearch = (req.query as any).keyword;
+        }
+        if (req.query && req.query.order) {
+            setOrder = (req.query as any).order;
+            switch (setOrder) {
+                case "n_a":
+                    setSort = { name: 1 };
+                    break;
+                case "n_d":
+                    setSort = { name: -1 };
+                    break;
+                case "c_a":
+                    setSort = { createdAt: 1 };
+                    break;
+            }
         }
 
         // filter
@@ -51,11 +68,8 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
         // filter -END
 
         const cq_skill = await Skill.find(whereCase).count();
-        const q_skill = await Skill.find(
-            whereCase,
-            "_id name status createdAt"
-        )
-            .sort({ createdAt: -1 })
+        const q_skill = await Skill.find(whereCase, "_id name status createdAt")
+            .sort(setSort)
             .skip(setPage && setPage != 1 ? (setPage - 1) * setLimit : 0)
             .limit(setLimit);
         if (!q_skill) {
@@ -71,7 +85,6 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
         }
 
         const result = q_skill.map((val: any) => {
-
             return {
                 id: val._id,
                 name: val.name,
@@ -94,7 +107,8 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
             message,
             skill: result,
             pages,
-            count: cq_skill
+            count: cq_skill,
+            order: setSort
         });
     } catch (err) {
         return res.status(500).json({
@@ -177,7 +191,7 @@ const status = async (req: Request, res: Response, next: NextFunction) => {
         // return
         status = 1;
         message =
-        q_skill.status == "active"
+            q_skill.status == "active"
                 ? "Skill deactivated successfully."
                 : "Skill activated successfully.";
 

@@ -7,7 +7,6 @@ import config from "../../config/config";
 
 import User from "../../models/user";
 
-
 /**
  *
  * @param name
@@ -28,7 +27,7 @@ import User from "../../models/user";
  * @returns image
  *
  */
- const store = async (req: Request, res: Response, next: NextFunction) => {
+const store = async (req: Request, res: Response, next: NextFunction) => {
     let status: number = 0;
     let message: string = "Sorry, user couldn't be saved.";
     let image: string = "";
@@ -37,97 +36,146 @@ import User from "../../models/user";
     let filesAre: any = null;
 
     if (req?.files) {
-        let filedis: any = req.files
-        filesAre = Object.values(filedis)
+        let filedis: any = req.files;
+        filesAre = Object.values(filedis);
     }
 
-    try {
-        let { name, email, phone, phone_code, about, education, dob, gender, skills, dl } = req.body;
+    // try {
+    let {
+        name,
+        email,
+        phone,
+        phone_code,
+        about,
+        education,
+        dob,
+        gender,
+        skills,
+        dl
+    } = req.body;
 
-        // check for duplicate account
-        const checkEmail = await User.find({ email }).countDocuments();
-        if (checkEmail > 0) {
-            if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path && fs.existsSync(filesAre[0][0]?.path)) {
-                let filePath: string = filesAre[0][0]?.path
-                fs.unlinkSync(filePath);
-            }
-            if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path && fs.existsSync(filesAre[1][0]?.path)) {
-                let filePath: string = filesAre[1][0]?.path
-                fs.unlinkSync(filePath);
-            }
-            return res.status(200).json({
-                status,
-                message:
-                    "Sorry, email already exists. Please try with different email.",
-                image,
-                emailExists: true,
-                phoneExists
-            });
-        }
-
-        const checkPhone = await User.find({ phone: `${phone_code}-${phone}` }).countDocuments();
-        if (checkPhone > 0) {
-            if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path && fs.existsSync(filesAre[0][0]?.path)) {
-                let filePath: string = filesAre[0][0]?.path
-                fs.unlinkSync(filePath);
-            }
-            if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path && fs.existsSync(filesAre[1][0]?.path)) {
-                let filePath: string = filesAre[1][0]?.path
-                fs.unlinkSync(filePath);
-            }
-            return res.status(200).json({
-                status,
-                message:
-                    "Sorry, phone already exists. Please try with different phone.",
-                    image,
-                emailExists,
-                phoneExists:true,
-            });
-        }
-        // END- check for duplicate account
-
-        let user = new User();
-
-        user.name = name;
-        user.email = email;
-        user.phone = `${phone_code}-${phone}`;
-        user.about = about;
-        user.education = education;
-        user.gender = gender;
-        user.dl = dl;
-        user._skills = skills.split(",");
-        user.dob = moment(
-            dob,
-            config.date_time.date_db
-        ).format(config.date_time.datetime_db);
-
-        if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
-            user.image = filesAre[0][0]?.path
-        }
-        if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
-            user.dl_image = filesAre[1][0]?.path
-        }
-
-        await user.save();
-
-        // return
-        status = 1;
-        message = "User saved successfully.";
-
-        return res.status(200).json({
-            status,
-            message,
-            image,
-            emailExists,
-            phoneExists
-        });
-    } catch (err) {
-        if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path && fs.existsSync(filesAre[0][0]?.path)) {
-            let filePath: string = filesAre[0][0]?.path
+    // check for duplicate account
+    const checkEmail = await User.find({ email }).countDocuments();
+    if (checkEmail > 0) {
+        if (
+            filesAre &&
+            filesAre[0] &&
+            filesAre[0][0] &&
+            filesAre[0][0].path &&
+            fs.existsSync(filesAre[0][0]?.path)
+        ) {
+            let filePath: string = filesAre[0][0]?.path;
             fs.unlinkSync(filePath);
         }
-        if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path && fs.existsSync(filesAre[1][0]?.path)) {
-            let filePath: string = filesAre[1][0]?.path
+        if (
+            filesAre &&
+            filesAre[1] &&
+            filesAre[1][0] &&
+            filesAre[1][0]?.path &&
+            fs.existsSync(filesAre[1][0]?.path)
+        ) {
+            let filePath: string = filesAre[1][0]?.path;
+            fs.unlinkSync(filePath);
+        }
+        return res.status(200).json({
+            status,
+            message:
+                "Sorry, email already exists. Please try with different email.",
+            image,
+            emailExists: true,
+            phoneExists
+        });
+    }
+
+    const checkPhone = await User.find({
+        phone: `${phone_code}-${phone}`
+    }).countDocuments();
+    if (checkPhone > 0) {
+        if (
+            filesAre &&
+            filesAre[0] &&
+            filesAre[0][0] &&
+            filesAre[0][0].path &&
+            fs.existsSync(filesAre[0][0]?.path)
+        ) {
+            let filePath: string = filesAre[0][0]?.path;
+            fs.unlinkSync(filePath);
+        }
+        if (
+            filesAre &&
+            filesAre[1] &&
+            filesAre[1][0] &&
+            filesAre[1][0]?.path &&
+            fs.existsSync(filesAre[1][0]?.path)
+        ) {
+            let filePath: string = filesAre[1][0]?.path;
+            fs.unlinkSync(filePath);
+        }
+        return res.status(200).json({
+            status,
+            message:
+                "Sorry, phone already exists. Please try with different phone.",
+            image,
+            emailExists,
+            phoneExists: true
+        });
+    }
+    // END- check for duplicate account
+
+    let user = new User();
+
+    user.name = name;
+    user.email = email;
+    user.phone = `${phone_code}-${phone}`;
+    user.about = about;
+    user.education = education;
+    user.gender = gender;
+    user.dl = dl;
+    if (skills) user._skills = skills.split(",");
+    user.dob = moment(dob, config.date_time.date_db).format(
+        config.date_time.datetime_db
+    );
+
+    if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
+        user.image = filesAre[0][0]?.path;
+    }
+    if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
+        user.dl_image = filesAre[1][0]?.path;
+    }
+
+    await user.save();
+
+    // return
+    status = 1;
+    message = "User saved successfully.";
+
+    return res.status(200).json({
+        status,
+        message,
+        image,
+        emailExists,
+        phoneExists
+    });
+    /*
+    } catch (err) {
+        if (
+            filesAre &&
+            filesAre[0] &&
+            filesAre[0][0] &&
+            filesAre[0][0].path &&
+            fs.existsSync(filesAre[0][0]?.path)
+        ) {
+            let filePath: string = filesAre[0][0]?.path;
+            fs.unlinkSync(filePath);
+        }
+        if (
+            filesAre &&
+            filesAre[1] &&
+            filesAre[1][0] &&
+            filesAre[1][0]?.path &&
+            fs.existsSync(filesAre[1][0]?.path)
+        ) {
+            let filePath: string = filesAre[1][0]?.path;
             fs.unlinkSync(filePath);
         }
 
@@ -140,14 +188,15 @@ import User from "../../models/user";
             err
         });
     }
+    */
 };
 
 /**
  *
  * @param limit
  * @param page
- * @param type
  * @param search
+ * @param order
  *
  * @returns status
  * @returns message
@@ -162,23 +211,35 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
     let pages: object = {};
     let count: number = 0;
 
-    let setSearch: number = 0;
+    let setSearch: string = "";
+    let setOrder: string = "c_d";
     let setPage: number = 0;
     let setLimit: number = 10;
-    let setType: string = "";
+    let setSort: any = { createdAt: -1 };
 
     try {
         if (req.query && req.query.limit) {
             setLimit = (req.query as any).limit;
         }
-        if (req.query && req.query.type) {
-            setType = (req.query as any).type;
-        }
         if (req.query && req.query.page) {
             setPage = (req.query as any).page;
         }
-        if (req.query && req.query.search) {
-            setSearch = (req.query as any).search;
+        if (req.query && req.query.keyword) {
+            setSearch = (req.query as any).keyword;
+        }
+        if (req.query && req.query.order) {
+            setOrder = (req.query as any).order;
+            switch (setOrder) {
+                case "n_a":
+                    setSort = { name: 1 };
+                    break;
+                case "n_d":
+                    setSort = { name: -1 };
+                    break;
+                case "c_a":
+                    setSort = { createdAt: 1 };
+                    break;
+            }
         }
 
         // filter
@@ -202,7 +263,7 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
             whereCase,
             "_id name email dob gender image status createdAt"
         )
-            .sort({ createdAt: -1 })
+            .sort(setSort)
             .skip(setPage && setPage != 1 ? (setPage - 1) * setLimit : 0)
             .limit(setLimit);
         if (!q_user) {
@@ -228,7 +289,9 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
                 id: val._id,
                 name: val.name,
                 email: val.email,
-                dob: moment(val.dob, config.date_time.datetime_db).format(config.date_time.date),
+                dob: moment(val.dob, config.date_time.datetime_db).format(
+                    config.date_time.date
+                ),
                 gender: val.gender,
                 status: val.status && val.status == "active" ? true : false,
                 image,
@@ -278,6 +341,7 @@ const show = async (req: Request, res: Response, next: NextFunction) => {
     let message: string = "Sorry, user not found.";
     let user: object = {};
     let skill: any = [];
+    let skillIds: any = [];
 
     try {
         const q_user = await User.findOne({ _id: req.params.id }).populate({
@@ -306,13 +370,13 @@ const show = async (req: Request, res: Response, next: NextFunction) => {
             imagedl = q_user.dl_image;
         }
         imagedl = `${config.server.app_url}/${imagedl}`;
-        
+
         if (q_user._skills && q_user._skills.length > 0)
             q_user._skills?.forEach((item: any) => {
-                if (item.name)
-                skill.push({id: item._id, name: item.name});
+                skillIds.push(item._id);
+                if (item.name) skill.push({ id: item._id, name: item.name });
             });
-
+        const setPhone = q_user?.phone.split("-");
 
         // return
         status = 1;
@@ -321,17 +385,20 @@ const show = async (req: Request, res: Response, next: NextFunction) => {
             id: q_user?._id || "",
             name: q_user?.name || "",
             email: q_user?.email || "",
-            phone: q_user?.phone || "",
+            phone: setPhone[1] || "",
+            phone_code: setPhone[0] || "",
             gender: q_user?.gender || "",
             about: q_user?.about || "",
             education: q_user?.education || "",
-            dob: q_user?.dob ? moment(
-                q_user.dob,
-                config.date_time.datetime_db
-                ).format(config.date_time.date_db) : "",
+            dob: q_user?.dob
+                ? moment(q_user.dob, config.date_time.datetime_db).format(
+                      config.date_time.date_db
+                  )
+                : "",
             image,
             dl: q_user?.dl || "",
             imagedl,
+            skill_ids: skillIds,
             status: q_user?.status && q_user.status == "active" ? true : false,
             created_at: moment(
                 q_user.createdAt,
@@ -387,12 +454,15 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
     let filesAre: any = null;
 
     if (req?.files) {
-        let filedis: any = req.files
-        filesAre = Object.values(filedis)
+        let filedis: any = req.files;
+        filesAre = Object.values(filedis);
     }
 
     try {
-        const q_user = await User.findOne({ _id: req.params.id }, "_id image dl_image");
+        const q_user = await User.findOne(
+            { _id: req.params.id },
+            "_id image dl_image"
+        );
         if (!q_user) {
             // return
             message = "Sorry, user not found.";
@@ -405,17 +475,43 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
                 phoneExists
             });
         }
-        let { name, email, phone, phone_code, about, education, dob, gender, skills, dl } = req.body;
+        let {
+            name,
+            email,
+            phone,
+            phone_code,
+            about,
+            education,
+            dob,
+            gender,
+            skills,
+            dl
+        } = req.body;
 
         // check for duplicate account
-        const checkEmail = await User.find({ _id: {$ne: req.params.id}, email  }).countDocuments();
+        const checkEmail = await User.find({
+            _id: { $ne: req.params.id },
+            email
+        }).countDocuments();
         if (checkEmail > 0) {
-            if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path && fs.existsSync(filesAre[0][0]?.path)) {
-                let filePath: string = filesAre[0][0]?.path
+            if (
+                filesAre &&
+                filesAre[0] &&
+                filesAre[0][0] &&
+                filesAre[0][0].path &&
+                fs.existsSync(filesAre[0][0]?.path)
+            ) {
+                let filePath: string = filesAre[0][0]?.path;
                 fs.unlinkSync(filePath);
             }
-            if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path && fs.existsSync(filesAre[1][0]?.path)) {
-                let filePath: string = filesAre[1][0]?.path
+            if (
+                filesAre &&
+                filesAre[1] &&
+                filesAre[1][0] &&
+                filesAre[1][0]?.path &&
+                fs.existsSync(filesAre[1][0]?.path)
+            ) {
+                let filePath: string = filesAre[1][0]?.path;
                 fs.unlinkSync(filePath);
             }
             return res.status(200).json({
@@ -428,23 +524,38 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
             });
         }
 
-        const checkPhone = await User.find({ _id: {$ne: req.params.id}, phone: `${phone_code}-${phone}` }).countDocuments();
+        const checkPhone = await User.find({
+            _id: { $ne: req.params.id },
+            phone: `${phone_code}-${phone}`
+        }).countDocuments();
         if (checkPhone > 0) {
-            if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path && fs.existsSync(filesAre[0][0]?.path)) {
-                let filePath: string = filesAre[0][0]?.path
+            if (
+                filesAre &&
+                filesAre[0] &&
+                filesAre[0][0] &&
+                filesAre[0][0].path &&
+                fs.existsSync(filesAre[0][0]?.path)
+            ) {
+                let filePath: string = filesAre[0][0]?.path;
                 fs.unlinkSync(filePath);
             }
-            if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path && fs.existsSync(filesAre[1][0]?.path)) {
-                let filePath: string = filesAre[1][0]?.path
+            if (
+                filesAre &&
+                filesAre[1] &&
+                filesAre[1][0] &&
+                filesAre[1][0]?.path &&
+                fs.existsSync(filesAre[1][0]?.path)
+            ) {
+                let filePath: string = filesAre[1][0]?.path;
                 fs.unlinkSync(filePath);
             }
             return res.status(200).json({
                 status,
                 message:
                     "Sorry, phone already exists. Please try with different phone.",
-                    image,
+                image,
                 emailExists,
-                phoneExists:true,
+                phoneExists: true
             });
         }
         // END- check for duplicate account
@@ -452,27 +563,26 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
         let setUser = Object.create({});
 
         setUser.email = email;
-        setUser.phone = phone;
+        setUser.phone = `${phone_code}-${phone}`;
         setUser.name = name;
         setUser.about = about;
         setUser.education = education;
         setUser.gender = gender;
         setUser.dl = dl;
         setUser._skills = skills.split(",");
-        setUser.dob = moment(
-            dob,
-            config.date_time.date_db
-        ).format(config.date_time.datetime_db);
+        setUser.dob = moment(dob, config.date_time.date_db).format(
+            config.date_time.datetime_db
+        );
 
         if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
-            setUser.image = filesAre[0][0]?.path
+            setUser.image = filesAre[0][0]?.path;
 
             if (q_user.image && fs.existsSync(q_user.image)) {
                 fs.unlinkSync(q_user.image);
             }
         }
         if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
-            setUser.dl_image = filesAre[1][0]?.path
+            setUser.dl_image = filesAre[1][0]?.path;
 
             if (q_user.dl_image && fs.existsSync(q_user.dl_image)) {
                 fs.unlinkSync(q_user.dl_image);
