@@ -123,6 +123,77 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
 
 /**
  *
+ * @param order
+ *
+ * @returns status
+ * @returns message
+ * @returns skill
+ * @returns page
+ *
+ */
+const indexAll = async (req: Request, res: Response, next: NextFunction) => {
+    let status: number = 0;
+    let message: string = "Sorry, skills not found.";
+    let skill: object[] = [];
+
+    let setOrder: string = "c_d";
+    let setSort: any = { createdAt: -1 };
+
+    try {
+        let whereCase: object = { status: "active" };
+        if (req.query && req.query.order) {
+            setOrder = (req.query as any).order;
+            switch (setOrder) {
+                case "n_a":
+                    setSort = { name: 1 };
+                    break;
+                case "n_d":
+                    setSort = { name: -1 };
+                    break;
+                case "c_a":
+                    setSort = { createdAt: 1 };
+                    break;
+            }
+        }
+
+        const q_skill = await Skill.find(whereCase, "_id name").sort(setSort);
+        if (!q_skill) {
+            // return
+
+            return res.status(200).json({
+                status,
+                message,
+                skill
+            });
+        }
+
+        const result = q_skill.map((val: any) => {
+            return {
+                id: val._id,
+                name: val.name
+            };
+        });
+
+        // return
+        status = 1;
+        if (result.length) message = "Skills fetched successfully.";
+
+        return res.status(200).json({
+            status,
+            message,
+            skill: result
+        });
+    } catch (err) {
+        return res.status(500).json({
+            status,
+            message,
+            skill
+        });
+    }
+};
+
+/**
+ *
  * @param name
  *
  * @returns status
@@ -249,4 +320,4 @@ const destory = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default { index, store, status, destory };
+export default { index, store, status, destory, indexAll };

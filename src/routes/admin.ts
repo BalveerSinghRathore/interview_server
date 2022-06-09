@@ -9,9 +9,10 @@ import AccessValid from "../validations/admin/access";
 import SkillCtl from "../controllers/admin/skill";
 import SkillValid from "../validations/admin/skill";
 
+import DashboardCtl from "../controllers/admin/dashboard";
+
 import UserCtl from "../controllers/admin/user";
 import UserValid from "../validations/admin/user";
-
 
 const router = express.Router();
 
@@ -19,15 +20,15 @@ const router = express.Router();
 
 router.post("/login", validation(AccessValid.login), AccessCtl.login);
 
-
 // Skill
 
 router.get("/skill", [auth, validation(SkillValid.index)], SkillCtl.index);
-router.post(
-    "/skill",
-    [auth, validation(SkillValid.store)],
-    SkillCtl.store
+router.get(
+    "/skill/all",
+    [auth, validation(SkillValid.indexAll)],
+    SkillCtl.indexAll
 );
+router.post("/skill", [auth, validation(SkillValid.store)], SkillCtl.store);
 router.patch(
     "/skill/:id",
     [auth, validation(SkillValid.show)],
@@ -39,6 +40,9 @@ router.delete(
     SkillCtl.destory
 );
 
+// Dashboard
+
+router.get("/dashboard", auth, DashboardCtl.index);
 
 // User
 
@@ -46,20 +50,38 @@ router.get("/user", [auth, validation(UserValid.index)], UserCtl.index);
 router.get("/user/:id", [auth, validation(UserValid.show)], UserCtl.show);
 router.post(
     "/user",
-    [auth, upload.fields([{
-        name: 'img-user', maxCount: 1
-      }, {
-        name: 'img-driving_licence', maxCount: 1
-      }]), validation(UserValid.store)],
+    [
+        auth,
+        upload.fields([
+            {
+                name: "img-user",
+                maxCount: 1
+            },
+            {
+                name: "img-driving_licence",
+                maxCount: 1
+            }
+        ]),
+        validation(UserValid.store)
+    ],
     UserCtl.store
 );
 router.patch(
     "/user/:id",
-    [auth, upload.fields([{
-        name: 'img-user', maxCount: 1
-      }, {
-        name: 'img-driving_licence', maxCount: 1
-      }]), validation(UserValid.update)],
+    [
+        auth,
+        upload.fields([
+            {
+                name: "img-user",
+                maxCount: 1
+            },
+            {
+                name: "img-driving_licence",
+                maxCount: 1
+            }
+        ]),
+        validation(UserValid.update)
+    ],
     UserCtl.update
 );
 router.patch(
@@ -67,20 +89,24 @@ router.patch(
     [auth, validation(UserValid.status)],
     UserCtl.status
 );
-router.delete(
-    "/user/:id",
-    [auth, validation(UserValid.show)],
-    UserCtl.destory
-);
-
+router.delete("/user/:id", [auth, validation(UserValid.show)], UserCtl.destory);
 
 router.post(
     "/user",
-    [auth, upload.fields([{
-        name: 'img-user', maxCount: 1
-      }, {
-        name: 'img-driving_licence', maxCount: 1
-      }]), validation(UserValid.store)],
+    [
+        auth,
+        upload.fields([
+            {
+                name: "img-user",
+                maxCount: 1
+            },
+            {
+                name: "img-driving_licence",
+                maxCount: 1
+            }
+        ]),
+        validation(UserValid.store)
+    ],
     UserCtl.store
 );
 

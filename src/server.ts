@@ -8,6 +8,7 @@ import db from "./config/db";
 import AdminRoutes from "./routes/admin";
 
 const router = express();
+console.log("on server..!");
 
 /** Connect to Mongo */
 db();

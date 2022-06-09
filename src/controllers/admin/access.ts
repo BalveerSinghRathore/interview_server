@@ -22,7 +22,6 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     let token: string = "";
 
     try {
-
         /*
         * adding admin user
         *
@@ -41,7 +40,6 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
         */
 
-
         let { email, password } = req.body;
 
         const q_user = await User.findOne(
@@ -58,7 +56,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
                 token
             });
         }
-        let setPassword = q_user.password || ""
+        let setPassword = q_user.password || "";
         // check user password with hashed password stored in the database
         const validPassword = await bcrypt.compare(password, setPassword);
         if (!validPassword) {

@@ -44,9 +44,11 @@ const DATE_TIME = {
 
 const COUNT_RECORD = process.env.COUNT_RECORD || "";
 const DEFAULT_IMG = process.env.DEFAULT_IMG || "";
+const TOTAL_USER_FIELDS = process.env.TOTAL_USER_FIELDS || "";
 const APP_DEFAULT = {
     count_record: COUNT_RECORD,
-    default_img: DEFAULT_IMG
+    default_img: DEFAULT_IMG,
+    total_user_fields: TOTAL_USER_FIELDS
 };
 
 const config = {
@@ -54,7 +56,7 @@ const config = {
     server: SERVER,
     count: COUNT_RECORD,
     date_time: DATE_TIME,
-    app_default: APP_DEFAULT,
+    app_default: APP_DEFAULT
 };
 
 export default config;

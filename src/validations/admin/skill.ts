@@ -8,6 +8,11 @@ const index = yup.object({
         search: yup.string().nullable()
     })
 });
+const indexAll = yup.object({
+    query: yup.object({
+        order: yup.mixed().oneOf(["c_d", "n_a", "n_d", "c_a"]).required()
+    })
+});
 
 const show = yup.object({
     params: yup.object({
@@ -21,4 +26,4 @@ const store = yup.object({
     })
 });
 
-export = { index, show, store };
+export = { index, show, store, indexAll };

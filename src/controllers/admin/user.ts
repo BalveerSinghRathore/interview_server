@@ -13,12 +13,16 @@ import User from "../../models/user";
  * @param email
  * @param phone
  * @param phone_code
- * @param about
  * @param education
  * @param dob
  * @param gender
- * @param skills
  * @param dl
+ * @param skills
+ * @param address
+ * @param about
+ * @param sin
+ * @param relocation
+ * @param availability
  * @param img-user
  * @param img-driving_licence
  *
@@ -34,6 +38,7 @@ const store = async (req: Request, res: Response, next: NextFunction) => {
     let emailExists: Boolean = false;
     let phoneExists: Boolean = false;
     let filesAre: any = null;
+    let setCompletion: number = 0;
 
     if (req?.files) {
         let filedis: any = req.files;
@@ -51,6 +56,10 @@ const store = async (req: Request, res: Response, next: NextFunction) => {
         dob,
         gender,
         skills,
+        sin,
+        address,
+        availability,
+        relocation,
         dl
     } = req.body;
 
@@ -125,23 +134,56 @@ const store = async (req: Request, res: Response, next: NextFunction) => {
     let user = new User();
 
     user.name = name;
+    if (user.name) setCompletion++;
     user.email = email;
+    if (user.email) setCompletion++;
     user.phone = `${phone_code}-${phone}`;
+    if (user.phone) setCompletion++;
     user.about = about;
+    if (user.about) setCompletion++;
     user.education = education;
+    if (user.education) setCompletion++;
     user.gender = gender;
+    if (user.gender) setCompletion++;
+    user.sin = sin;
+    if (user.sin) setCompletion++;
+    user.address = address;
+    if (user.address) setCompletion++;
+    user.availability = availability;
+    if (user.availability) setCompletion++;
+    user.relocation = relocation;
+    if (user.relocation) setCompletion++;
     user.dl = dl;
-    if (skills) user._skills = skills.split(",");
+    if (user.dl) setCompletion++;
+    if (skills) {
+        setCompletion++;
+        user._skills = skills.split(",");
+    }
     user.dob = moment(dob, config.date_time.date_db).format(
         config.date_time.datetime_db
     );
+    if (user.dob) setCompletion++;
 
     if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
         user.image = filesAre[0][0]?.path;
     }
+    if (user.image) setCompletion++;
     if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
         user.dl_image = filesAre[1][0]?.path;
     }
+    if (user.dl_image) setCompletion++;
+    user.completion = parseFloat(
+        parseFloat(
+            (
+                (setCompletion /
+                    parseInt(config.app_default.total_user_fields)) *
+                100
+            ).toString()
+        ).toFixed(2)
+    );
+
+    console.log("setCompletion", setCompletion);
+    console.log("user.completion", user.completion);
 
     await user.save();
 
@@ -197,6 +239,7 @@ const store = async (req: Request, res: Response, next: NextFunction) => {
  * @param page
  * @param search
  * @param order
+ * @param year
  *
  * @returns status
  * @returns message
@@ -215,17 +258,23 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
     let setOrder: string = "c_d";
     let setPage: number = 0;
     let setLimit: number = 10;
+    let setYear: string = "";
     let setSort: any = { createdAt: -1 };
 
     try {
-        if (req.query && req.query.limit) {
+        if (req.query && req.query.limit && req.query.limit != null) {
             setLimit = (req.query as any).limit;
         }
         if (req.query && req.query.page) {
             setPage = (req.query as any).page;
         }
-        if (req.query && req.query.keyword) {
+        if (req.query && req.query.keyword && req.query.keyword != null) {
             setSearch = (req.query as any).keyword;
+        }
+        if (req.query && req.query.year && req.query.year != null) {
+            setYear = moment()
+                .subtract((req.query as any).year, "years")
+                .format("YYYY-MM-DD HH:mm:ss");
         }
         if (req.query && req.query.order) {
             setOrder = (req.query as any).order;
@@ -246,6 +295,12 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
         let whereCase: object = {
             role: "candidate"
         };
+        if (setYear) {
+            whereCase = {
+                ...whereCase,
+                dob: { $lte: setYear }
+            };
+        }
         if (setSearch) {
             whereCase = {
                 ...whereCase,
@@ -261,7 +316,7 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
         const cq_user = await User.find(whereCase).count();
         const q_user = await User.find(
             whereCase,
-            "_id name email dob gender image status createdAt"
+            "_id name email dob gender image status completion createdAt"
         )
             .sort(setSort)
             .skip(setPage && setPage != 1 ? (setPage - 1) * setLimit : 0)
@@ -293,6 +348,7 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
                     config.date_time.date
                 ),
                 gender: val.gender,
+                completion: val.completion,
                 status: val.status && val.status == "active" ? true : false,
                 image,
                 created_at: moment(
@@ -313,7 +369,8 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
             message,
             user: result,
             pages,
-            count: cq_user
+            count: cq_user,
+            whereCase
         });
     } catch (err) {
         return res.status(500).json({
@@ -390,6 +447,10 @@ const show = async (req: Request, res: Response, next: NextFunction) => {
             gender: q_user?.gender || "",
             about: q_user?.about || "",
             education: q_user?.education || "",
+            sin: q_user?.sin || "",
+            address: q_user?.address || "",
+            availability: q_user?.availability || "",
+            relocation: q_user?.relocation || "",
             dob: q_user?.dob
                 ? moment(q_user.dob, config.date_time.datetime_db).format(
                       config.date_time.date_db
@@ -452,6 +513,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
     let emailExists: Boolean = false;
     let phoneExists: Boolean = false;
     let filesAre: any = null;
+    let setCompletion: number = 0;
 
     if (req?.files) {
         let filedis: any = req.files;
@@ -485,6 +547,10 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
             dob,
             gender,
             skills,
+            sin,
+            address,
+            availability,
+            relocation,
             dl
         } = req.body;
 
@@ -563,16 +629,33 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
         let setUser = Object.create({});
 
         setUser.email = email;
+        if (setUser.email) setCompletion++;
         setUser.phone = `${phone_code}-${phone}`;
+        if (setUser.phone) setCompletion++;
         setUser.name = name;
+        if (setUser.name) setCompletion++;
         setUser.about = about;
+        if (setUser.about) setCompletion++;
         setUser.education = education;
+        if (setUser.education) setCompletion++;
         setUser.gender = gender;
+        if (setUser.gender) setCompletion++;
         setUser.dl = dl;
+        if (setUser.dl) setCompletion++;
         setUser._skills = skills.split(",");
+        if (setUser._skills) setCompletion++;
         setUser.dob = moment(dob, config.date_time.date_db).format(
             config.date_time.datetime_db
         );
+        if (setUser.dob) setCompletion++;
+        setUser.sin = sin;
+        if (setUser.sin) setCompletion++;
+        setUser.address = address;
+        if (setUser.address) setCompletion++;
+        setUser.availability = availability;
+        if (setUser.availability) setCompletion++;
+        setUser.relocation = relocation;
+        if (setUser.relocation) setCompletion++;
 
         if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
             setUser.image = filesAre[0][0]?.path;
@@ -581,6 +664,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
                 fs.unlinkSync(q_user.image);
             }
         }
+        if (setUser.image) setCompletion++;
         if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
             setUser.dl_image = filesAre[1][0]?.path;
 
@@ -588,6 +672,17 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
                 fs.unlinkSync(q_user.dl_image);
             }
         }
+        if (setUser.dl_image) setCompletion++;
+
+        setUser.completion = parseFloat(
+            parseFloat(
+                (
+                    (setCompletion /
+                        parseInt(config.app_default.total_user_fields)) *
+                    100
+                ).toString()
+            ).toFixed(2)
+        );
 
         await User.updateOne({ _id: req.params.id }, setUser);
 

@@ -10,9 +10,14 @@ export default interface IUser extends Document {
     _skills?: string[];
     dob?: string;
     gender?: "f" | "m";
+    sin?: string;
+    address?: string;
+    availability?: string;
+    relocation?: string;
     dl?: string;
     dl_image?: string;
     image?: string;
+    completion?: number;
     status: "active" | "pending" | "de-active";
     password?: string;
     createdAt: string;
