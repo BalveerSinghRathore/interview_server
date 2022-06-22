@@ -51,6 +51,7 @@ var UserSchema = new mongoose_1.Schema({
     dl: { type: String, default: null },
     dl_image: { type: String, default: null },
     image: { type: String, default: null },
+    completion: { type: Number, default: null },
     status: {
         type: String,
         enum: ["active", "pending", "de-active"],

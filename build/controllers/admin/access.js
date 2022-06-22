@@ -58,7 +58,6 @@ var login = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                console.log("hey!");
                 status = 0;
                 message = "";
                 token = "";

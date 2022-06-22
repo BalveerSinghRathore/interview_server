@@ -99,10 +99,10 @@ var user_1 = __importDefault(require("../../models/user"));
  *
  */
 var store = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var status, message, image, emailExists, phoneExists, filesAre, filedis, _a, name, email, phone, phone_code, about, education, dob, gender, skills, sin, address, availability, relocation, dl, checkEmail, filePath, filePath, checkPhone, filePath, filePath, user;
-    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
-    return __generator(this, function (_q) {
-        switch (_q.label) {
+    var status, message, image, emailExists, phoneExists, filesAre, setCompletion, filedis, _a, name_1, email, phone, phone_code, about, education, dob, gender, skills, sin, address, availability, relocation, dl, checkEmail, filePath, filePath, checkPhone, filePath, filePath, user, err_1, filePath, filePath;
+    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+    return __generator(this, function (_v) {
+        switch (_v.label) {
             case 0:
                 status = 0;
                 message = "Sorry, user couldn't be saved.";
@@ -110,14 +110,18 @@ var store = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                 emailExists = false;
                 phoneExists = false;
                 filesAre = null;
+                setCompletion = 0;
                 if (req === null || req === void 0 ? void 0 : req.files) {
                     filedis = req.files;
                     filesAre = Object.values(filedis);
                 }
-                _a = req.body, name = _a.name, email = _a.email, phone = _a.phone, phone_code = _a.phone_code, about = _a.about, education = _a.education, dob = _a.dob, gender = _a.gender, skills = _a.skills, sin = _a.sin, address = _a.address, availability = _a.availability, relocation = _a.relocation, dl = _a.dl;
-                return [4 /*yield*/, user_1.default.find({ email: email }).countDocuments()];
+                _v.label = 1;
             case 1:
-                checkEmail = _q.sent();
+                _v.trys.push([1, 5, , 6]);
+                _a = req.body, name_1 = _a.name, email = _a.email, phone = _a.phone, phone_code = _a.phone_code, about = _a.about, education = _a.education, dob = _a.dob, gender = _a.gender, skills = _a.skills, sin = _a.sin, address = _a.address, availability = _a.availability, relocation = _a.relocation, dl = _a.dl;
+                return [4 /*yield*/, user_1.default.find({ email: email }).countDocuments()];
+            case 2:
+                checkEmail = _v.sent();
                 if (checkEmail > 0) {
                     if (filesAre &&
                         filesAre[0] &&
@@ -146,8 +150,8 @@ var store = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                 return [4 /*yield*/, user_1.default.find({
                         phone: "".concat(phone_code, "-").concat(phone)
                     }).countDocuments()];
-            case 2:
-                checkPhone = _q.sent();
+            case 3:
+                checkPhone = _v.sent();
                 if (checkPhone > 0) {
                     if (filesAre &&
                         filesAre[0] &&
@@ -174,29 +178,62 @@ var store = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                         })];
                 }
                 user = new user_1.default();
-                user.name = name;
+                user.name = name_1;
+                if (user.name)
+                    setCompletion++;
                 user.email = email;
+                if (user.email)
+                    setCompletion++;
                 user.phone = "".concat(phone_code, "-").concat(phone);
+                if (user.phone)
+                    setCompletion++;
                 user.about = about;
+                if (user.about)
+                    setCompletion++;
                 user.education = education;
+                if (user.education)
+                    setCompletion++;
                 user.gender = gender;
+                if (user.gender)
+                    setCompletion++;
                 user.sin = sin;
+                if (user.sin)
+                    setCompletion++;
                 user.address = address;
+                if (user.address)
+                    setCompletion++;
                 user.availability = availability;
+                if (user.availability)
+                    setCompletion++;
                 user.relocation = relocation;
+                if (user.relocation)
+                    setCompletion++;
                 user.dl = dl;
-                if (skills)
+                if (user.dl)
+                    setCompletion++;
+                if (skills) {
+                    setCompletion++;
                     user._skills = skills.split(",");
+                }
                 user.dob = (0, moment_1.default)(dob, config_1.default.date_time.date_db).format(config_1.default.date_time.datetime_db);
+                if (user.dob)
+                    setCompletion++;
                 if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
                     user.image = (_m = filesAre[0][0]) === null || _m === void 0 ? void 0 : _m.path;
                 }
+                if (user.image)
+                    setCompletion++;
                 if (filesAre && filesAre[1] && filesAre[1][0] && ((_o = filesAre[1][0]) === null || _o === void 0 ? void 0 : _o.path)) {
                     user.dl_image = (_p = filesAre[1][0]) === null || _p === void 0 ? void 0 : _p.path;
                 }
+                if (user.dl_image)
+                    setCompletion++;
+                user.completion = parseFloat(parseFloat(((setCompletion /
+                    parseInt(config_1.default.app_default.total_user_fields)) *
+                    100).toString()).toFixed(2));
                 return [4 /*yield*/, user.save()];
-            case 3:
-                _q.sent();
+            case 4:
+                _v.sent();
                 // return
                 status = 1;
                 message = "User saved successfully.";
@@ -207,6 +244,33 @@ var store = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                         emailExists: emailExists,
                         phoneExists: phoneExists
                     })];
+            case 5:
+                err_1 = _v.sent();
+                if (filesAre &&
+                    filesAre[0] &&
+                    filesAre[0][0] &&
+                    filesAre[0][0].path &&
+                    fs.existsSync((_q = filesAre[0][0]) === null || _q === void 0 ? void 0 : _q.path)) {
+                    filePath = (_r = filesAre[0][0]) === null || _r === void 0 ? void 0 : _r.path;
+                    fs.unlinkSync(filePath);
+                }
+                if (filesAre &&
+                    filesAre[1] &&
+                    filesAre[1][0] &&
+                    ((_s = filesAre[1][0]) === null || _s === void 0 ? void 0 : _s.path) &&
+                    fs.existsSync((_t = filesAre[1][0]) === null || _t === void 0 ? void 0 : _t.path)) {
+                    filePath = (_u = filesAre[1][0]) === null || _u === void 0 ? void 0 : _u.path;
+                    fs.unlinkSync(filePath);
+                }
+                return [2 /*return*/, res.status(500).json({
+                        status: status,
+                        message: message,
+                        image: image,
+                        emailExists: emailExists,
+                        phoneExists: phoneExists,
+                        err: err_1
+                    })];
+            case 6: return [2 /*return*/];
         }
     });
 }); };
@@ -225,7 +289,7 @@ var store = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
  *
  */
 var index = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var status, message, user, pages, count, setSearch, setOrder, setPage, setLimit, setYear, setSort, whereCase, cq_user, q_user, result, err_1;
+    var status, message, user, pages, count, setSearch, setOrder, setPage, setLimit, setYear, setSort, whereCase, cq_user, q_user, result, err_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -287,7 +351,7 @@ var index = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                 return [4 /*yield*/, user_1.default.find(whereCase).count()];
             case 2:
                 cq_user = _a.sent();
-                return [4 /*yield*/, user_1.default.find(whereCase, "_id name email dob gender image status createdAt")
+                return [4 /*yield*/, user_1.default.find(whereCase, "_id name email dob gender image status completion createdAt")
                         .sort(setSort)
                         .skip(setPage && setPage != 1 ? (setPage - 1) * setLimit : 0)
                         .limit(setLimit)];
@@ -315,6 +379,7 @@ var index = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                         email: val.email,
                         dob: (0, moment_1.default)(val.dob, config_1.default.date_time.datetime_db).format(config_1.default.date_time.date),
                         gender: val.gender,
+                        completion: val.completion,
                         status: val.status && val.status == "active" ? true : false,
                         image: image,
                         created_at: (0, moment_1.default)(val.createdAt, config_1.default.date_time.datetime_db).format(config_1.default.date_time.datetime)
@@ -334,7 +399,7 @@ var index = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
                         whereCase: whereCase
                     })];
             case 4:
-                err_1 = _a.sent();
+                err_2 = _a.sent();
                 return [2 /*return*/, res.status(500).json({
                         status: status,
                         message: message,
@@ -357,7 +422,7 @@ var index = function (req, res, next) { return __awaiter(void 0, void 0, void 0,
  *
  */
 var show = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var status, message, user, skill, skillIds, q_user, image, imagedl, setPhone, err_2;
+    var status, message, user, skill, skillIds, q_user, image, imagedl, setPhone, err_3;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -435,7 +500,7 @@ var show = function (req, res, next) { return __awaiter(void 0, void 0, void 0, 
                         skill: skill
                     })];
             case 3:
-                err_2 = _b.sent();
+                err_3 = _b.sent();
                 message = "Sorry, user not found.";
                 return [2 /*return*/, res.status(500).json({
                         status: status,
@@ -470,7 +535,7 @@ var show = function (req, res, next) { return __awaiter(void 0, void 0, void 0, 
  *
  */
 var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var status, message, image, emailExists, phoneExists, filesAre, filedis, q_user, _a, name_1, email, phone, phone_code, about, education, dob, gender, skills, sin, address, availability, relocation, dl, checkEmail, filePath, filePath, checkPhone, filePath, filePath, setUser, err_3;
+    var status, message, image, emailExists, phoneExists, filesAre, setCompletion, filedis, q_user, _a, name_2, email, phone, phone_code, about, education, dob, gender, skills, sin, address, availability, relocation, dl, checkEmail, filePath, filePath, checkPhone, filePath, filePath, setUser, err_4;
     var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
     return __generator(this, function (_s) {
         switch (_s.label) {
@@ -481,6 +546,7 @@ var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                 emailExists = false;
                 phoneExists = false;
                 filesAre = null;
+                setCompletion = 0;
                 if (req === null || req === void 0 ? void 0 : req.files) {
                     filedis = req.files;
                     filesAre = Object.values(filedis);
@@ -502,7 +568,7 @@ var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                             phoneExists: phoneExists
                         })];
                 }
-                _a = req.body, name_1 = _a.name, email = _a.email, phone = _a.phone, phone_code = _a.phone_code, about = _a.about, education = _a.education, dob = _a.dob, gender = _a.gender, skills = _a.skills, sin = _a.sin, address = _a.address, availability = _a.availability, relocation = _a.relocation, dl = _a.dl;
+                _a = req.body, name_2 = _a.name, email = _a.email, phone = _a.phone, phone_code = _a.phone_code, about = _a.about, education = _a.education, dob = _a.dob, gender = _a.gender, skills = _a.skills, sin = _a.sin, address = _a.address, availability = _a.availability, relocation = _a.relocation, dl = _a.dl;
                 return [4 /*yield*/, user_1.default.find({
                         _id: { $ne: req.params.id },
                         email: email
@@ -567,30 +633,63 @@ var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                 }
                 setUser = Object.create({});
                 setUser.email = email;
+                if (setUser.email)
+                    setCompletion++;
                 setUser.phone = "".concat(phone_code, "-").concat(phone);
-                setUser.name = name_1;
+                if (setUser.phone)
+                    setCompletion++;
+                setUser.name = name_2;
+                if (setUser.name)
+                    setCompletion++;
                 setUser.about = about;
+                if (setUser.about)
+                    setCompletion++;
                 setUser.education = education;
+                if (setUser.education)
+                    setCompletion++;
                 setUser.gender = gender;
+                if (setUser.gender)
+                    setCompletion++;
                 setUser.dl = dl;
+                if (setUser.dl)
+                    setCompletion++;
                 setUser._skills = skills.split(",");
+                if (setUser._skills)
+                    setCompletion++;
                 setUser.dob = (0, moment_1.default)(dob, config_1.default.date_time.date_db).format(config_1.default.date_time.datetime_db);
+                if (setUser.dob)
+                    setCompletion++;
                 setUser.sin = sin;
+                if (setUser.sin)
+                    setCompletion++;
                 setUser.address = address;
+                if (setUser.address)
+                    setCompletion++;
                 setUser.availability = availability;
+                if (setUser.availability)
+                    setCompletion++;
                 setUser.relocation = relocation;
+                if (setUser.relocation)
+                    setCompletion++;
                 if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
                     setUser.image = (_m = filesAre[0][0]) === null || _m === void 0 ? void 0 : _m.path;
                     if (q_user.image && fs.existsSync(q_user.image)) {
                         fs.unlinkSync(q_user.image);
                     }
                 }
+                if (setUser.image)
+                    setCompletion++;
                 if (filesAre && filesAre[1] && filesAre[1][0] && ((_o = filesAre[1][0]) === null || _o === void 0 ? void 0 : _o.path)) {
                     setUser.dl_image = (_p = filesAre[1][0]) === null || _p === void 0 ? void 0 : _p.path;
                     if (q_user.dl_image && fs.existsSync(q_user.dl_image)) {
                         fs.unlinkSync(q_user.dl_image);
                     }
                 }
+                if (setUser.dl_image)
+                    setCompletion++;
+                setUser.completion = parseFloat(parseFloat(((setCompletion /
+                    parseInt(config_1.default.app_default.total_user_fields)) *
+                    100).toString()).toFixed(2));
                 return [4 /*yield*/, user_1.default.updateOne({ _id: req.params.id }, setUser)];
             case 5:
                 _s.sent();
@@ -603,7 +702,7 @@ var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                         image: image
                     })];
             case 6:
-                err_3 = _s.sent();
+                err_4 = _s.sent();
                 if (req.file && req.file.path && fs.existsSync((_q = req.file) === null || _q === void 0 ? void 0 : _q.path)) {
                     fs.unlinkSync((_r = req.file) === null || _r === void 0 ? void 0 : _r.path);
                 }
@@ -611,7 +710,7 @@ var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                         status: status,
                         message: message,
                         image: image,
-                        err: err_3
+                        err: err_4
                     })];
             case 7: return [2 /*return*/];
         }
@@ -626,7 +725,7 @@ var update = function (req, res, next) { return __awaiter(void 0, void 0, void 0
  *
  */
 var status = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var status, message, q_user, err_4;
+    var status, message, q_user, err_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -662,11 +761,11 @@ var status = function (req, res, next) { return __awaiter(void 0, void 0, void 0
                         message: message
                     })];
             case 4:
-                err_4 = _a.sent();
+                err_5 = _a.sent();
                 return [2 /*return*/, res.status(500).json({
                         status: status,
                         message: message,
-                        err: err_4
+                        err: err_5
                     })];
             case 5: return [2 /*return*/];
         }
@@ -681,7 +780,7 @@ var status = function (req, res, next) { return __awaiter(void 0, void 0, void 0
  *
  */
 var destory = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var status, message, q_user, err_5;
+    var status, message, q_user, err_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -714,7 +813,7 @@ var destory = function (req, res, next) { return __awaiter(void 0, void 0, void 
                         message: message
                     })];
             case 4:
-                err_5 = _a.sent();
+                err_6 = _a.sent();
                 return [2 /*return*/, res.status(500).json({
                         status: status,
                         message: message

@@ -40,9 +40,11 @@ var DATE_TIME = {
 };
 var COUNT_RECORD = process.env.COUNT_RECORD || "";
 var DEFAULT_IMG = process.env.DEFAULT_IMG || "";
+var TOTAL_USER_FIELDS = process.env.TOTAL_USER_FIELDS || "";
 var APP_DEFAULT = {
     count_record: COUNT_RECORD,
-    default_img: DEFAULT_IMG
+    default_img: DEFAULT_IMG,
+    total_user_fields: TOTAL_USER_FIELDS
 };
 var config = {
     mongo: MONGO,

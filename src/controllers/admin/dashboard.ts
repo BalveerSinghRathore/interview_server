@@ -69,6 +69,11 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const q_user = await User.aggregate([
             {
+                $match: {
+                    role: "candidate"
+                }
+            },
+            {
                 $project: {
                     month: { $month: "$createdAt" },
                     year: { $year: "$createdAt" }

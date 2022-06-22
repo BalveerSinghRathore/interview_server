@@ -22,24 +22,6 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     let token: string = "";
 
     try {
-        /*
-        * adding admin user
-        *
-
-        const salt = await bcrypt.genSalt(10);
-        // now we set user password to hashed password
-        const pwd = await bcrypt.hash("Backend@789", salt);
-
-        let newUser = new User()
-        newUser.email = 'interview@getnada.com'
-        newUser.phone = '91-1234567890'
-        newUser.name = 'Admin'
-        newUser.role = 'admin'
-        newUser.password = pwd
-        await newUser.save()
-
-        */
-
         let { email, password } = req.body;
 
         const q_user = await User.findOne(

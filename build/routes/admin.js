@@ -10,6 +10,7 @@ var access_1 = __importDefault(require("../controllers/admin/access"));
 var access_2 = __importDefault(require("../validations/admin/access"));
 var skill_1 = __importDefault(require("../controllers/admin/skill"));
 var skill_2 = __importDefault(require("../validations/admin/skill"));
+var dashboard_1 = __importDefault(require("../controllers/admin/dashboard"));
 var user_1 = __importDefault(require("../controllers/admin/user"));
 var user_2 = __importDefault(require("../validations/admin/user"));
 var router = express_1.default.Router();
@@ -21,6 +22,8 @@ router.get("/skill/all", [authentication_1.default, (0, validation_1.default)(sk
 router.post("/skill", [authentication_1.default, (0, validation_1.default)(skill_2.default.store)], skill_1.default.store);
 router.patch("/skill/:id", [authentication_1.default, (0, validation_1.default)(skill_2.default.show)], skill_1.default.status);
 router.delete("/skill/:id", [authentication_1.default, (0, validation_1.default)(skill_2.default.show)], skill_1.default.destory);
+// Dashboard
+router.get("/dashboard", authentication_1.default, dashboard_1.default.index);
 // User
 router.get("/user", [authentication_1.default, (0, validation_1.default)(user_2.default.index)], user_1.default.index);
 router.get("/user/:id", [authentication_1.default, (0, validation_1.default)(user_2.default.show)], user_1.default.show);

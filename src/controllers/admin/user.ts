@@ -45,160 +45,156 @@ const store = async (req: Request, res: Response, next: NextFunction) => {
         filesAre = Object.values(filedis);
     }
 
-    // try {
-    let {
-        name,
-        email,
-        phone,
-        phone_code,
-        about,
-        education,
-        dob,
-        gender,
-        skills,
-        sin,
-        address,
-        availability,
-        relocation,
-        dl
-    } = req.body;
+    try {
+        let {
+            name,
+            email,
+            phone,
+            phone_code,
+            about,
+            education,
+            dob,
+            gender,
+            skills,
+            sin,
+            address,
+            availability,
+            relocation,
+            dl
+        } = req.body;
 
-    // check for duplicate account
-    const checkEmail = await User.find({ email }).countDocuments();
-    if (checkEmail > 0) {
-        if (
-            filesAre &&
-            filesAre[0] &&
-            filesAre[0][0] &&
-            filesAre[0][0].path &&
-            fs.existsSync(filesAre[0][0]?.path)
-        ) {
-            let filePath: string = filesAre[0][0]?.path;
-            fs.unlinkSync(filePath);
+        // check for duplicate account
+        const checkEmail = await User.find({ email }).countDocuments();
+        if (checkEmail > 0) {
+            if (
+                filesAre &&
+                filesAre[0] &&
+                filesAre[0][0] &&
+                filesAre[0][0].path &&
+                fs.existsSync(filesAre[0][0]?.path)
+            ) {
+                let filePath: string = filesAre[0][0]?.path;
+                fs.unlinkSync(filePath);
+            }
+            if (
+                filesAre &&
+                filesAre[1] &&
+                filesAre[1][0] &&
+                filesAre[1][0]?.path &&
+                fs.existsSync(filesAre[1][0]?.path)
+            ) {
+                let filePath: string = filesAre[1][0]?.path;
+                fs.unlinkSync(filePath);
+            }
+            return res.status(200).json({
+                status,
+                message:
+                    "Sorry, email already exists. Please try with different email.",
+                image,
+                emailExists: true,
+                phoneExists
+            });
         }
-        if (
-            filesAre &&
-            filesAre[1] &&
-            filesAre[1][0] &&
-            filesAre[1][0]?.path &&
-            fs.existsSync(filesAre[1][0]?.path)
-        ) {
-            let filePath: string = filesAre[1][0]?.path;
-            fs.unlinkSync(filePath);
+
+        const checkPhone = await User.find({
+            phone: `${phone_code}-${phone}`
+        }).countDocuments();
+        if (checkPhone > 0) {
+            if (
+                filesAre &&
+                filesAre[0] &&
+                filesAre[0][0] &&
+                filesAre[0][0].path &&
+                fs.existsSync(filesAre[0][0]?.path)
+            ) {
+                let filePath: string = filesAre[0][0]?.path;
+                fs.unlinkSync(filePath);
+            }
+            if (
+                filesAre &&
+                filesAre[1] &&
+                filesAre[1][0] &&
+                filesAre[1][0]?.path &&
+                fs.existsSync(filesAre[1][0]?.path)
+            ) {
+                let filePath: string = filesAre[1][0]?.path;
+                fs.unlinkSync(filePath);
+            }
+            return res.status(200).json({
+                status,
+                message:
+                    "Sorry, phone already exists. Please try with different phone.",
+                image,
+                emailExists,
+                phoneExists: true
+            });
         }
+        // END- check for duplicate account
+
+        let user = new User();
+
+        user.name = name;
+        if (user.name) setCompletion++;
+        user.email = email;
+        if (user.email) setCompletion++;
+        user.phone = `${phone_code}-${phone}`;
+        if (user.phone) setCompletion++;
+        user.about = about;
+        if (user.about) setCompletion++;
+        user.education = education;
+        if (user.education) setCompletion++;
+        user.gender = gender;
+        if (user.gender) setCompletion++;
+        user.sin = sin;
+        if (user.sin) setCompletion++;
+        user.address = address;
+        if (user.address) setCompletion++;
+        user.availability = availability;
+        if (user.availability) setCompletion++;
+        user.relocation = relocation;
+        if (user.relocation) setCompletion++;
+        user.dl = dl;
+        if (user.dl) setCompletion++;
+        if (skills) {
+            setCompletion++;
+            user._skills = skills.split(",");
+        }
+        user.dob = moment(dob, config.date_time.date_db).format(
+            config.date_time.datetime_db
+        );
+        if (user.dob) setCompletion++;
+
+        if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
+            user.image = filesAre[0][0]?.path;
+        }
+        if (user.image) setCompletion++;
+        if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
+            user.dl_image = filesAre[1][0]?.path;
+        }
+        if (user.dl_image) setCompletion++;
+        user.completion = parseFloat(
+            parseFloat(
+                (
+                    (setCompletion /
+                        parseInt(config.app_default.total_user_fields)) *
+                    100
+                ).toString()
+            ).toFixed(2)
+        );
+
+        await user.save();
+
+        // return
+        status = 1;
+        message = "User saved successfully.";
+
         return res.status(200).json({
             status,
-            message:
-                "Sorry, email already exists. Please try with different email.",
-            image,
-            emailExists: true,
-            phoneExists
-        });
-    }
-
-    const checkPhone = await User.find({
-        phone: `${phone_code}-${phone}`
-    }).countDocuments();
-    if (checkPhone > 0) {
-        if (
-            filesAre &&
-            filesAre[0] &&
-            filesAre[0][0] &&
-            filesAre[0][0].path &&
-            fs.existsSync(filesAre[0][0]?.path)
-        ) {
-            let filePath: string = filesAre[0][0]?.path;
-            fs.unlinkSync(filePath);
-        }
-        if (
-            filesAre &&
-            filesAre[1] &&
-            filesAre[1][0] &&
-            filesAre[1][0]?.path &&
-            fs.existsSync(filesAre[1][0]?.path)
-        ) {
-            let filePath: string = filesAre[1][0]?.path;
-            fs.unlinkSync(filePath);
-        }
-        return res.status(200).json({
-            status,
-            message:
-                "Sorry, phone already exists. Please try with different phone.",
+            message,
             image,
             emailExists,
-            phoneExists: true
+            phoneExists
         });
-    }
-    // END- check for duplicate account
-
-    let user = new User();
-
-    user.name = name;
-    if (user.name) setCompletion++;
-    user.email = email;
-    if (user.email) setCompletion++;
-    user.phone = `${phone_code}-${phone}`;
-    if (user.phone) setCompletion++;
-    user.about = about;
-    if (user.about) setCompletion++;
-    user.education = education;
-    if (user.education) setCompletion++;
-    user.gender = gender;
-    if (user.gender) setCompletion++;
-    user.sin = sin;
-    if (user.sin) setCompletion++;
-    user.address = address;
-    if (user.address) setCompletion++;
-    user.availability = availability;
-    if (user.availability) setCompletion++;
-    user.relocation = relocation;
-    if (user.relocation) setCompletion++;
-    user.dl = dl;
-    if (user.dl) setCompletion++;
-    if (skills) {
-        setCompletion++;
-        user._skills = skills.split(",");
-    }
-    user.dob = moment(dob, config.date_time.date_db).format(
-        config.date_time.datetime_db
-    );
-    if (user.dob) setCompletion++;
-
-    if (filesAre && filesAre[0] && filesAre[0][0] && filesAre[0][0].path) {
-        user.image = filesAre[0][0]?.path;
-    }
-    if (user.image) setCompletion++;
-    if (filesAre && filesAre[1] && filesAre[1][0] && filesAre[1][0]?.path) {
-        user.dl_image = filesAre[1][0]?.path;
-    }
-    if (user.dl_image) setCompletion++;
-    user.completion = parseFloat(
-        parseFloat(
-            (
-                (setCompletion /
-                    parseInt(config.app_default.total_user_fields)) *
-                100
-            ).toString()
-        ).toFixed(2)
-    );
-
-    console.log("setCompletion", setCompletion);
-    console.log("user.completion", user.completion);
-
-    await user.save();
-
-    // return
-    status = 1;
-    message = "User saved successfully.";
-
-    return res.status(200).json({
-        status,
-        message,
-        image,
-        emailExists,
-        phoneExists
-    });
-    /*
     } catch (err) {
         if (
             filesAre &&
@@ -230,7 +226,6 @@ const store = async (req: Request, res: Response, next: NextFunction) => {
             err
         });
     }
-    */
 };
 
 /**
